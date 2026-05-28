@@ -13,6 +13,7 @@ class AiAssistantScreen extends ConsumerStatefulWidget {
 class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
+  bool _isSending = false;
 
   @override
   void dispose() {
@@ -32,8 +33,14 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
   }
 
   Future<void> _sendMessage([String? presetText]) async {
+    if (_isSending) return;
+
     final text = presetText ?? _textController.text.trim();
     if (text.isEmpty) return;
+
+    setState(() {
+      _isSending = true;
+    });
 
     if (presetText == null) {
       _textController.clear();
@@ -42,7 +49,15 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
     // Delay scroll to bottom so the message is rendered first
     Future.delayed(const Duration(milliseconds: 50), _scrollToBottom);
 
-    await ref.read(aiAssistantProvider.notifier).sendMessage(text);
+    try {
+      await ref.read(aiAssistantProvider.notifier).sendMessage(text);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSending = false;
+        });
+      }
+    }
     
     Future.delayed(const Duration(milliseconds: 50), _scrollToBottom);
   }
@@ -53,7 +68,16 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AI LOGISTICS SCHEDULER'),
+        title: const Text('ASISTEN LOGISTIK AI'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_sweep_rounded),
+            tooltip: 'Hapus riwayat obrolan',
+            onPressed: () {
+              ref.read(aiAssistantProvider.notifier).clearHistory();
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -80,25 +104,27 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
                           maxWidth: MediaQuery.of(context).size.width * 0.75,
                         ),
                         decoration: BoxDecoration(
-                          color: isUser ? OceanColors.primary : OceanColors.surfaceElevated,
+                          color: isUser ? OceanColors.primary : OceanColors.grey100,
                           borderRadius: BorderRadius.only(
-                            topLeft: const Radius.circular(12),
-                            topRight: const Radius.circular(12),
-                            bottomLeft: isUser ? const Radius.circular(12) : Radius.zero,
-                            bottomRight: isUser ? Radius.zero : const Radius.circular(12),
+                            topLeft: const Radius.circular(16),
+                            topRight: const Radius.circular(16),
+                            bottomLeft: isUser ? const Radius.circular(16) : Radius.zero,
+                            bottomRight: isUser ? Radius.zero : const Radius.circular(16),
                           ),
                           border: isUser
                               ? null
                               : Border.all(
-                                  color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                                  color: OceanColors.grey200,
+                                  width: 1,
                                 ),
                         ),
                         child: Text(
                           msg.content,
                           style: TextStyle(
-                            color: isUser ? Colors.white : null,
-                            fontSize: 13.5,
+                            color: isUser ? Colors.white : OceanColors.grey800,
+                            fontSize: 14,
                             height: 1.4,
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
                       ),
@@ -119,18 +145,18 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
               child: Row(
                 children: [
                   _SuggestionChip(
-                    label: 'Check Atlantic Pioneer risks',
-                    onTap: () => _sendMessage('Are there weather risks on Atlantic Pioneer?'),
+                    label: 'Cek risiko Atlantic Pioneer',
+                    onTap: _isSending ? null : () => _sendMessage('Apakah ada risiko cuaca pada kapal Atlantic Pioneer?'),
                   ),
                   const SizedBox(width: 8),
                   _SuggestionChip(
-                    label: 'Draft customs clearance report',
-                    onTap: () => _sendMessage('Can you draft a clearance report?'),
+                    label: 'Buat draf laporan bea cukai',
+                    onTap: _isSending ? null : () => _sendMessage('Bisa buatkan draf laporan bea cukai?'),
                   ),
                   const SizedBox(width: 8),
                   _SuggestionChip(
-                    label: 'Show active ETAs list',
-                    onTap: () => _sendMessage('Show shipment ETAs'),
+                    label: 'Tampilkan daftar ETA aktif',
+                    onTap: _isSending ? null : () => _sendMessage('Tampilkan perkiraan waktu tiba (ETA) pengiriman'),
                   ),
                 ],
               ),
@@ -139,35 +165,78 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
 
           // Input controls board
           Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.4),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: const BoxDecoration(
+              color: Colors.white,
               border: Border(
                 top: BorderSide(
-                  color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                  color: OceanColors.grey200,
+                  width: 1,
                 ),
               ),
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    decoration: const InputDecoration(
-                      hintText: 'Ask cargo risks, route schedules...',
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: SafeArea(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: _isSending ? OceanColors.grey100 : OceanColors.grey50,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: OceanColors.grey200,
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _textController,
+                              enabled: !_isSending,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: _isSending ? OceanColors.grey400 : OceanColors.grey900,
+                              ),
+                              decoration: InputDecoration(
+                                hintText: 'Tanya risiko kargo, jadwal rute...',
+                                hintStyle: TextStyle(
+                                  color: _isSending ? OceanColors.grey400.withOpacity(0.5) : OceanColors.grey400,
+                                  fontSize: 14,
+                                ),
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                filled: false,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                              ),
+                              onSubmitted: (_) => _sendMessage(),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    onSubmitted: (_) => _sendMessage(),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send_rounded, color: OceanColors.primary),
-                  onPressed: () => _sendMessage(),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: _isSending ? OceanColors.grey400 : OceanColors.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.send_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      onPressed: _isSending ? null : () => _sendMessage(),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -178,7 +247,7 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
 
 class _SuggestionChip extends StatelessWidget {
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _SuggestionChip({required this.label, required this.onTap});
 
@@ -187,12 +256,21 @@ class _SuggestionChip extends StatelessWidget {
     return ActionChip(
       label: Text(
         label,
-        style: const TextStyle(fontSize: 11, color: OceanColors.teal),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: onTap == null ? OceanColors.grey400 : OceanColors.primary, // Sapphire Blue
+        ),
       ),
-      backgroundColor: OceanColors.surfaceElevated,
+      backgroundColor: OceanColors.grey100, // Light Gray
       side: BorderSide(
-        color: OceanColors.teal.withOpacity(0.3),
+        color: onTap == null ? OceanColors.grey200.withOpacity(0.5) : OceanColors.grey200,
+        width: 1,
       ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20), // Rounded Capsule
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       onPressed: onTap,
     );
   }

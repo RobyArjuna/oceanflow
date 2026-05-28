@@ -21,7 +21,7 @@ class OceanFlowApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      themeMode: themeMode,
+      themeMode: ThemeMode.light,
       routerConfig: router,
     );
   }

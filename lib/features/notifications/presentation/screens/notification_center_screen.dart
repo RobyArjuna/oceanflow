@@ -79,45 +79,79 @@ class _NotificationCard extends ConsumerWidget {
         color = OceanColors.teal;
     }
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      color: item.isRead ? null : OceanColors.surfaceElevated,
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: item.isRead ? Colors.white : OceanColors.primary.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: item.isRead ? OceanColors.grey200 : OceanColors.primary.withOpacity(0.15),
+          width: 1,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
           decoration: BoxDecoration(
-            color: color.withOpacity(0.12),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, color: color, size: 20),
-        ),
-        title: Text(
-          item.title,
-          style: TextStyle(
-            fontWeight: item.isRead ? FontWeight.normal : FontWeight.bold,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            Text(item.body),
-            const SizedBox(height: 6),
-            Text(
-              item.createdAt.substring(11, 16),
-              style: const TextStyle(fontSize: 10, color: OceanColors.grey400),
+            border: Border(
+              left: BorderSide(
+                color: item.isRead ? Colors.transparent : OceanColors.primary,
+                width: 4,
+              ),
             ),
-          ],
+          ),
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            title: Text(
+              item.title,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: item.isRead ? FontWeight.w500 : FontWeight.w600,
+                color: OceanColors.grey900,
+              ),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 4),
+                Text(
+                  item.body,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    color: OceanColors.grey600,
+                    height: 1.3,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  item.createdAt.substring(11, 16),
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                    color: OceanColors.grey400,
+                  ),
+                ),
+              ],
+            ),
+            trailing: !item.isRead
+                ? IconButton(
+                    icon: const Icon(Icons.done_all_rounded, size: 18, color: OceanColors.primary),
+                    tooltip: 'Mark read',
+                    onPressed: () {
+                      ref.read(notificationListProvider.notifier).markAsRead(item.id);
+                    },
+                  )
+                : null,
+          ),
         ),
-        trailing: !item.isRead
-            ? IconButton(
-                icon: const Icon(Icons.done_all_rounded, size: 18),
-                tooltip: 'Mark read',
-                onPressed: () {
-                  ref.read(notificationListProvider.notifier).markAsRead(item.id);
-                },
-              )
-            : null,
       ),
     );
   }

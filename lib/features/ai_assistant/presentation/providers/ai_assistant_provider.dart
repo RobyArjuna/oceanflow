@@ -53,7 +53,7 @@ class AiAssistantNotifier extends StateNotifier<AsyncValue<List<ChatMessage>>> {
         // Welcoming starter message from AI assistant
         final starterId = _uuid.v4();
         final now = DateTime.now().toIso8601String();
-        const msg = "Welcome to OceanFlow AI Assistant. I can help resolve container routing risks, check vessel ETA forecasts, draft custom port clearance reports, or answer details on active shipments.";
+        const msg = "Selamat datang di Asisten AI OceanFlow. Saya dapat membantu mendeteksi risiko rute kontainer, memeriksa perkiraan ETA kapal, membuat draf laporan bea cukai pelabuhan, atau menjawab informasi mengenai pengiriman aktif Anda.";
         
         await db.insert(DbConstants.tableAiConversations, {
           DbConstants.colId: starterId,
@@ -69,6 +69,16 @@ class AiAssistantNotifier extends StateNotifier<AsyncValue<List<ChatMessage>>> {
       }
 
       state = AsyncValue.data(list);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
+  Future<void> clearHistory() async {
+    try {
+      final db = await _dbHelper.database;
+      await db.delete(DbConstants.tableAiConversations);
+      await loadHistory();
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }
@@ -102,11 +112,10 @@ class AiAssistantNotifier extends StateNotifier<AsyncValue<List<ChatMessage>>> {
     final assistantNow = DateTime.now().toIso8601String();
     
     // Setup temporary typing placeholder
-    var assistantContent = "";
     final tempAssistantMessage = ChatMessage(
       id: assistantMsgId,
       role: 'assistant',
-      content: "Thinking...",
+      content: "Sedang berpikir...",
       createdAt: assistantNow,
     );
 
@@ -145,15 +154,15 @@ class AiAssistantNotifier extends StateNotifier<AsyncValue<List<ChatMessage>>> {
 
   String _getMockReply(String input) {
     final lower = input.toLowerCase();
-    if (lower.contains('risk') || lower.contains('atlantic pioneer')) {
-      return "ANALYSIS: Vessel 'Atlantic Pioneer' (TRK-2026-N897A) is crossing high-winds zone in North Atlantic. Heavy swells up to 4.5m detected. Minor delay of 4 hours expected at Newark Harbor terminal gate, but cargo remains fully secure within locked temperature buffers.";
+    if (lower.contains('risiko') || lower.contains('risk') || lower.contains('atlantic pioneer')) {
+      return "ANALISIS: Kapal 'Atlantic Pioneer' (TRK-2026-N897A) sedang melintasi zona angin kencang di Atlantik Utara. Terdeteksi gelombang tinggi hingga 4.5m. Diperkirakan ada keterlambatan kecil sekitar 4 jam di gerbang terminal Newark Harbor, namun kargo tetap sepenuhnya aman dalam wadah buffer suhu yang terkunci.";
     }
-    if (lower.contains('eta') || lower.contains('when')) {
-      return "SCHEDULE REPORT: Atlantic Pioneer (Newark) ETA: June 05, 18:00 UTC. Pacific Empress (Hamburg) ETA: May 28, 06:30 UTC. Both arrivals are within planned variance margins. No supply chain line stoppage risks identified.";
+    if (lower.contains('eta') || lower.contains('kapan') || lower.contains('when') || lower.contains('tiba')) {
+      return "LAPORAN JADWAL: ETA Atlantic Pioneer (Newark): 5 Juni, 18:00 UTC. ETA Pacific Empress (Hamburg): 28 Mei, 06:30 UTC. Kedua kedatangan masih dalam batas toleransi yang direncanakan. Tidak ada risiko hambatan rantai pasok.";
     }
-    if (lower.contains('clearance') || lower.contains('custom')) {
-      return "TEMPLATE DRAFT: 'Port Authority Clearance Report - TRK-2026-N897A. We hereby declare Container Seals CONT-4008 / CONT-9023 fully intact. Bilge sensors operational. Requesting slot allocation for urgent discharge.'";
+    if (lower.contains('clearance') || lower.contains('bea cukai') || lower.contains('custom') || lower.contains('draf')) {
+      return "DRAF TEMPLATE: 'Laporan Izin Otoritas Pelabuhan - TRK-2026-N897A. Dengan ini kami menyatakan Segel Kontainer CONT-4008 / CONT-9023 sepenuhnya utuh. Sensor lambung kapal berfungsi normal. Memohon alokasi slot untuk pembongkaran muatan darurat.'";
     }
-    return "LOGISTICS INTELLIGENCE: Query acknowledged. You can inquire about Atlantic Pioneer weather risk delays, ETA reports, container barcodes, or ask to draft automated customs declaration logs.";
+    return "LOGISTIK INTELEGENSI: Pertanyaan diterima. Anda dapat bertanya tentang penundaan risiko cuaca Atlantic Pioneer, laporan ETA, barcode kontainer, atau meminta pembuatan draf log deklarasi bea cukai otomatis.";
   }
 }

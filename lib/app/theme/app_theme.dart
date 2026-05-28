@@ -1,50 +1,50 @@
 import 'package:flutter/material.dart';
 
 /// OceanFlow brand color tokens.
-/// Designed for a maritime enterprise context: deep ocean blues, steel grays,
-/// operational amber warnings, and success greens.
+/// Designed for a maritime enterprise context: clean misty/ocean whites,
+/// deep sea blues, seafoam teals, and soft slate-blue grays.
 abstract final class OceanColors {
-  // === PRIMARY: Deep Ocean ===
-  static const primary = Color(0xFF0A84FF);
-  static const primaryDark = Color(0xFF0066CC);
-  static const primaryLight = Color(0xFF4DA6FF);
+  // === PRIMARY: Crystal Ocean Sapphire ===
+  static const primary = Color(0xFF0077B6); // Clean Ocean Sapphire Blue
+  static const primaryDark = Color(0xFF03045E); // Deep Midnight Blue
+  static const primaryLight = Color(0xFF90E0EF); // Sky/Ice Blue
 
   // === SURFACE / BACKGROUND ===
-  static const backgroundDark = Color(0xFF0D1117);
-  static const surfaceDark = Color(0xFF161B22);
-  static const surfaceElevated = Color(0xFF1C2433);
-  static const cardDark = Color(0xFF1E2B3C);
+  static const backgroundDark = Color(0xFF0F172A); // Deep Slate Dark Background
+  static const surfaceDark = Color(0xFF1E293B); // Slate Surface Dark
+  static const surfaceElevated = Color(0xFF334155); // Elevated Surface Dark
+  static const cardDark = Color(0xFF1E293B); // Slate Card Dark
 
-  static const backgroundLight = Color(0xFFF4F7FB);
-  static const surfaceLight = Color(0xFFFFFFFF);
-  static const cardLight = Color(0xFFFFFFFF);
+  static const backgroundLight = Color(0xFFFFFFFF); // Crystal Pure Clear White
+  static const surfaceLight = Color(0xFFFFFFFF); // Pure White Surface
+  static const cardLight = Color(0xFFFFFFFF); // Pure White Card
 
   // === ACCENT ===
-  static const teal = Color(0xFF00BCD4);
-  static const tealDark = Color(0xFF00838F);
+  static const teal = Color(0xFF00B4D8); // Clear Coastal Turquoise
+  static const tealDark = Color(0xFF0077B6);
 
   // === STATUS COLORS ===
-  static const pending = Color(0xFF9E9E9E);
-  static const loaded = Color(0xFF42A5F5);
-  static const atPort = Color(0xFFAB47BC);
-  static const sailing = Color(0xFF0A84FF);
-  static const arrived = Color(0xFF26C6DA);
-  static const delivered = Color(0xFF66BB6A);
+  static const pending = Color(0xFF64748B); // Slate neutral status
+  static const loaded = Color(0xFF00B4D8); // Vibrant Coastal status
+  static const atPort = Color(0xFF8B5CF6); // Purple status
+  static const sailing = Color(0xFF0077B6); // Sapphire status
+  static const arrived = Color(0xFF0EA5E9); // Sky blue status
+  static const delivered = Color(0xFF10B981); // Emerald success status
 
   // === SEMANTIC ===
-  static const error = Color(0xFFFF453A);
-  static const warning = Color(0xFFFF9F0A);
-  static const success = Color(0xFF32D74B);
-  static const info = Color(0xFF0A84FF);
+  static const error = Color(0xFFEF4444); // Crisp clean red
+  static const warning = Color(0xFFF59E0B); // Crisp clean amber
+  static const success = Color(0xFF10B981); // Crisp clean emerald
+  static const info = Color(0xFF0077B6); // Sapphire info
 
-  // === NEUTRAL ===
-  static const grey50 = Color(0xFFF8FAFC);
-  static const grey100 = Color(0xFFF1F5F9);
-  static const grey200 = Color(0xFFE2E8F0);
-  static const grey400 = Color(0xFF94A3B8);
-  static const grey600 = Color(0xFF475569);
-  static const grey800 = Color(0xFF1E293B);
-  static const grey900 = Color(0xFF0F172A);
+  // === NEUTRAL (Crisp Grayscale Slate) ===
+  static const grey50 = Color(0xFFF8FAFC); // Slate 50
+  static const grey100 = Color(0xFFF1F5F9); // Slate 100
+  static const grey200 = Color(0xFFE2E8F0); // Slate 200
+  static const grey400 = Color(0xFF94A3B8); // Slate 400
+  static const grey600 = Color(0xFF475569); // Slate 600
+  static const grey800 = Color(0xFF1E293B); // Slate 800
+  static const grey900 = Color(0xFF0F172A); // Slate 900
 }
 
 /// Centralized Material 3 theme builder for OceanFlow.
@@ -63,8 +63,8 @@ abstract final class AppTheme {
       surface: OceanColors.surfaceDark,
       onSurface: const Color(0xFFE2E8F0),
       surfaceContainerHighest: OceanColors.cardDark,
-      outline: const Color(0xFF2D3748),
-      outlineVariant: const Color(0xFF1A2332),
+      outline: const Color(0xFF1B2631),
+      outlineVariant: const Color(0xFF0D1620),
     );
 
     return _buildTheme(colorScheme, Brightness.dark);
@@ -75,14 +75,14 @@ abstract final class AppTheme {
       brightness: Brightness.light,
       primary: OceanColors.primary,
       onPrimary: Colors.white,
-      primaryContainer: const Color(0xFFD6EAFF),
+      primaryContainer: const Color(0xFFE0F2FE),
       onPrimaryContainer: OceanColors.primaryDark,
       secondary: OceanColors.teal,
       onSecondary: Colors.white,
       error: OceanColors.error,
       onError: Colors.white,
       surface: OceanColors.surfaceLight,
-      onSurface: const Color(0xFF1E293B),
+      onSurface: OceanColors.grey900,
       surfaceContainerHighest: OceanColors.grey100,
       outline: OceanColors.grey200,
       outlineVariant: OceanColors.grey100,
@@ -155,7 +155,7 @@ abstract final class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(
-            color: isDark ? const Color(0xFF2D3748) : OceanColors.grey200,
+            color: isDark ? OceanColors.grey800.withOpacity(0.5) : OceanColors.grey200,
             width: 1,
           ),
         ),
@@ -181,13 +181,13 @@ abstract final class AppTheme {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-            color: isDark ? const Color(0xFF2D3748) : OceanColors.grey200,
+            color: isDark ? OceanColors.grey800.withOpacity(0.5) : OceanColors.grey200,
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-            color: isDark ? const Color(0xFF2D3748) : OceanColors.grey200,
+            color: isDark ? OceanColors.grey800.withOpacity(0.5) : OceanColors.grey200,
           ),
         ),
         focusedBorder: OutlineInputBorder(
@@ -250,7 +250,7 @@ abstract final class AppTheme {
 
       // Divider
       dividerTheme: DividerThemeData(
-        color: isDark ? const Color(0xFF2D3748) : OceanColors.grey200,
+        color: isDark ? OceanColors.grey800.withOpacity(0.5) : OceanColors.grey200,
         thickness: 1,
         space: 1,
       ),
